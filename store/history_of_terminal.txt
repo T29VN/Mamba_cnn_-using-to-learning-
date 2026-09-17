@@ -1,0 +1,997 @@
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ mv mamba-main mamba-main_old_2.2.4
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ ls
+mamba-main_old_2.2.4  MoDANet-dataset  Model.py  project_overview.md  Train.py
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git clone --branch v2.3.2.post1 --depth 1 https://github.com/state-spaces/mamba.git /tmp/mamba-main
+rm -rf /tmp/mamba-main/.git
+mv /tmp/mamba-main ./mamba-main
+Cloning into '/tmp/mamba-main'...
+remote: Enumerating objects: 125, done.
+remote: Counting objects: 100% (125/125), done.
+remote: Compressing objects: 100% (110/110), done.
+remote: Total 125 (delta 11), reused 66 (delta 9), pack-reused 0 (from 0)
+Receiving objects: 100% (125/125), 1.67 MiB | 4.88 MiB/s, done.
+Resolving deltas: 100% (11/11), done.
+Note: switching to 'a14b1dff0454a3bc27d9eb31355dc01e4b2490ec'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ which python
+python -m pip --version
+/home/truongtn/venvs/mamba_cnn_number_1/bin/python
+pip 26.2.1 from /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/pip (python 3.10)
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python -c "import torch; print(torch.__version__); print(torch.__file__)"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'torch'
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cu130
+Looking in indexes: https://download.pytorch.org/whl/cu130
+Collecting torch==2.10.0
+  Using cached torch-2.10.0%2Bcu130-cp310-cp310-manylinux_2_28_x86_64.whl.metadata (30 kB)
+Collecting filelock (from torch==2.10.0)
+  Using cached filelock-3.32.3-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.10.0 (from torch==2.10.0)
+  Using cached typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting sympy>=1.13.3 (from torch==2.10.0)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx>=2.5.1 (from torch==2.10.0)
+  Using cached networkx-3.4.2-py3-none-any.whl.metadata (6.3 kB)
+Collecting jinja2 (from torch==2.10.0)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec>=0.8.5 (from torch==2.10.0)
+  Using cached fsspec-2026.7.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-bindings==13.0.3 (from torch==2.10.0)
+  Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.3 kB)
+Collecting nvidia-cuda-nvrtc==13.0.88 (from torch==2.10.0)
+  Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 6.0 MB/s  0:00:15
+Collecting nvidia-cuda-runtime==13.0.96 (from torch==2.10.0)
+  Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 8.2 MB/s  0:00:00
+Collecting nvidia-cuda-cupti==13.0.85 (from torch==2.10.0)
+  Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 6.0 MB/s  0:00:01
+Collecting nvidia-cudnn-cu13==9.15.1.9 (from torch==2.10.0)
+  Downloading nvidia_cudnn_cu13-9.15.1.9-py3-none-manylinux_2_27_x86_64.whl (351.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 351.3/351.3 MB 5.8 MB/s  0:00:59
+Collecting nvidia-cublas==13.1.0.3 (from torch==2.10.0)
+  Downloading nvidia_cublas-13.1.0.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 5.9 MB/s  0:01:10
+Collecting nvidia-cufft==12.0.0.61 (from torch==2.10.0)
+  Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 6.0 MB/s  0:00:36
+Collecting nvidia-curand==10.4.0.35 (from torch==2.10.0)
+  Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 6.0 MB/s  0:00:09
+Collecting nvidia-cusolver==12.0.4.66 (from torch==2.10.0)
+  Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 6.0 MB/s  0:00:33
+Collecting nvidia-cusparse==12.6.3.3 (from torch==2.10.0)
+  Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 2.7 MB/s  0:00:41
+Collecting nvidia-cusparselt-cu13==0.8.0 (from torch==2.10.0)
+  Downloading nvidia_cusparselt_cu13-0.8.0-py3-none-manylinux2014_x86_64.whl (169.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 169.9/169.9 MB 4.2 MB/s  0:00:41
+Collecting nvidia-nccl-cu13==2.28.9 (from torch==2.10.0)
+  Downloading nvidia_nccl_cu13-2.28.9-py3-none-manylinux_2_18_x86_64.whl (196.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.5/196.5 MB 3.6 MB/s  0:00:47
+Collecting nvidia-nvshmem-cu13==3.4.5 (from torch==2.10.0)
+  Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 6.1 MB/s  0:00:09
+Collecting nvidia-nvtx==13.0.85 (from torch==2.10.0)
+  Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
+Collecting nvidia-nvjitlink==13.0.88 (from torch==2.10.0)
+  Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (40.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.7/40.7 MB 6.0 MB/s  0:00:06
+Collecting nvidia-cufile==1.15.1.6 (from torch==2.10.0)
+  Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 5.9 MB/s  0:00:00
+Collecting triton==3.6.0 (from torch==2.10.0)
+  Using cached triton-3.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Collecting cuda-pathfinder~=1.1 (from cuda-bindings==13.0.3->torch==2.10.0)
+  Using cached cuda_pathfinder-1.6.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch==2.10.0)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.10.0)
+  Using cached markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Using cached torch-2.10.0%2Bcu130-cp310-cp310-manylinux_2_28_x86_64.whl (641.6 MB)
+Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.1 MB)
+Using cached triton-3.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (188.1 MB)
+Using cached cuda_pathfinder-1.6.0-py3-none-any.whl (54 kB)
+Using cached fsspec-2026.7.0-py3-none-any.whl (206 kB)
+Using cached networkx-3.4.2-py3-none-any.whl (1.7 MB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Using cached filelock-3.32.3-py3-none-any.whl (98 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Installing collected packages: nvidia-cusparselt-cu13, mpmath, typing-extensions, triton, sympy, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, nvidia-cublas, networkx, MarkupSafe, fsspec, filelock, cuda-pathfinder, nvidia-cusparse, nvidia-cufft, nvidia-cudnn-cu13, jinja2, cuda-bindings, nvidia-cusolver, torch
+Successfully installed MarkupSafe-3.0.3 cuda-bindings-13.0.3 cuda-pathfinder-1.6.0 filelock-3.32.3 fsspec-2026.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.4.2 nvidia-cublas-13.1.0.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.15.1.9 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.0 nvidia-nccl-cu13-2.28.9 nvidia-nvjitlink-13.0.88 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 sympy-1.14.0 torch-2.10.0+cu130 triton-3.6.0 typing-extensions-4.16.0
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2.10.0+cu130
+True
+NVIDIA GeForce GTX 1650
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install numpy
+Collecting numpy
+  Using cached numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+Using cached numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.8 MB)
+Installing collected packages: numpy
+Successfully installed numpy-2.2.6
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python -c "import numpy, torch; print('NumPy:', numpy.__version__); print('PyTorch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
+NumPy: 2.2.6
+PyTorch: 2.10.0+cu130
+CUDA: True
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install ./mamba-main --no-build-isolation
+Processing ./mamba-main
+  Preparing metadata (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+  
+  × Preparing metadata (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [20 lines of output]
+      /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/wheel/bdist_wheel.py:4: FutureWarning: The 'wheel' package is no longer the canonical location of the 'bdist_wheel' command, and will be removed in a future release. Please update to setuptools v70.1 or later which contains an integrated version of this command.
+        warn(
+      
+      
+      torch.__version__  = 2.10.0+cu130
+      
+      
+      Traceback (most recent call last):
+        File "/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
+          main()
+        File "/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
+          json_out["return_val"] = hook(**hook_input["kwargs"])
+        File "/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 175, in prepare_metadata_for_build_wheel
+          return hook(metadata_directory, config_settings)
+        File "/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/setuptools/build_meta.py", line 380, in prepare_metadata_for_build_wheel
+          self.run_setup()
+        File "/home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages/setuptools/build_meta.py", line 317, in run_setup
+          exec(code, locals())  # noqa: S102 # exec is intentional here
+        File "<string>", line 170, in <module>
+      RuntimeError: mamba_ssm is only supported on CUDA 11.6 and above.  Note: make sure nvcc has a supported version by running nvcc -V.
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> from file:///home/truongtn/Mamba_cnn_number_1/mamba-main
+
+note: This is an issue with the package mentioned above, not pip.
+hint: See above for details.
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ export CUDA_HOME=/usr/local/cuda
+export PATH=$CUDA_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}
+
+which nvcc
+nvcc -V
+
+python3 -c "from torch.utils.cpp_extension import CUDA_HOME; print('PyTorch CUDA_HOME =', CUDA_HOME)"
+/usr/local/cuda/bin/nvcc
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+PyTorch CUDA_HOME = /usr/local/cuda
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install ./mamba-main --no-build-isolation
+Processing ./mamba-main
+  Preparing metadata (pyproject.toml) ... done
+Requirement already satisfied: torch in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from mamba_ssm==2.3.2.post1) (2.10.0+cu130)
+Collecting tilelang==0.1.8 (from mamba_ssm==2.3.2.post1)
+  Downloading tilelang-0.1.8-cp38-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (15 kB)
+Collecting apache-tvm-ffi<=0.1.9 (from mamba_ssm==2.3.2.post1)
+  Downloading apache_tvm_ffi-0.1.9-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (6.1 kB)
+Collecting quack-kernels>=0.3.4 (from mamba_ssm==2.3.2.post1)
+  Downloading quack_kernels-0.6.5-py3-none-any.whl.metadata (834 bytes)
+Requirement already satisfied: triton>=3.5.0 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from mamba_ssm==2.3.2.post1) (3.6.0)
+Collecting ninja (from mamba_ssm==2.3.2.post1)
+  Downloading ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.4 kB)
+Collecting einops (from mamba_ssm==2.3.2.post1)
+  Using cached einops-0.8.2-py3-none-any.whl.metadata (13 kB)
+Collecting transformers (from mamba_ssm==2.3.2.post1)
+  Downloading transformers-5.17.0-py3-none-any.whl.metadata (32 kB)
+Requirement already satisfied: packaging in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from mamba_ssm==2.3.2.post1) (26.3)
+Requirement already satisfied: setuptools>=61.0.0 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from mamba_ssm==2.3.2.post1) (84.0.0)
+Collecting torch-c-dlpack-ext (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading torch_c_dlpack_ext-0.1.5-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (14 kB)
+Collecting cloudpickle (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting ml-dtypes (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading ml_dtypes-0.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)
+Requirement already satisfied: numpy>=1.23.5 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from tilelang==0.1.8->mamba_ssm==2.3.2.post1) (2.2.6)
+Collecting psutil (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Collecting tqdm>=4.62.3 (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from tilelang==0.1.8->mamba_ssm==2.3.2.post1) (4.16.0)
+Collecting z3-solver<4.15.5,>=4.13.0 (from tilelang==0.1.8->mamba_ssm==2.3.2.post1)
+  Downloading z3_solver-4.15.4.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (602 bytes)
+Collecting nvidia-cutlass-dsl>=4.7 (from quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cutlass_dsl-4.7.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting nvidia-cutlass-dsl-libs-base==4.7.1 (from nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cutlass_dsl_libs_base-4.7.1-cp310-cp310-manylinux_2_28_x86_64.whl.metadata (2.9 kB)
+Collecting nvidia-cutlass-dsl-libs-cu12==4.7.1 (from nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cutlass_dsl_libs_cu12-4.7.1-cp310-cp310-manylinux_2_28_x86_64.whl.metadata (2.9 kB)
+Collecting cuda-python>=12.8 (from nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading cuda_python-13.4.1-py3-none-any.whl.metadata (6.8 kB)
+Collecting backports.strenum (from nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading backports_strenum-1.3.1-py3-none-any.whl.metadata (3.7 kB)
+Collecting protobuf>=4.21.12 (from nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading protobuf-7.36.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+Collecting nvidia-cuda-nvdisasm<14,>=13.3 (from nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cuda_nvdisasm-13.4.92-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.9 kB)
+Collecting nvidia-cutlass-dsl-libs-core==4.7.1 (from nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cutlass_dsl_libs_core-4.7.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting cuda-bindings~=13.4.1 (from cuda-python>=12.8->nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading cuda_bindings-13.4.1-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting cuda-core~=1.2.0 (from cuda-python>=12.8->nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1)
+  Downloading cuda_core-1.2.0-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.3 kB)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-python>=12.8->nvidia-cutlass-dsl-libs-base==4.7.1->nvidia-cutlass-dsl>=4.7->quack-kernels>=0.3.4->mamba_ssm==2.3.2.post1) (1.6.0)
+Requirement already satisfied: filelock in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (3.32.3)
+Requirement already satisfied: sympy>=1.13.3 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (3.4.2)
+Requirement already satisfied: jinja2 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (2026.7.0)
+INFO: pip is looking at multiple versions of torch to determine which version is compatible with other requirements. This could take a while.
+Collecting torch (from mamba_ssm==2.3.2.post1)
+  Downloading torch-2.14.0-cp310-cp310-manylinux_2_28_x86_64.whl.metadata (37 kB)
+Collecting cuda-toolkit==13.0.3 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1)
+  Using cached cuda_toolkit-13.0.3.0-py2.py3-none-any.whl.metadata (17 kB)
+Collecting nvidia-cudnn-cu13==9.24.0.43 (from torch->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl.metadata (1.9 kB)
+Collecting nvidia-cusparselt-cu13==0.8.1 (from torch->mamba_ssm==2.3.2.post1)
+  Using cached nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl.metadata (12 kB)
+Collecting nvidia-nccl-cu13==2.30.7 (from torch->mamba_ssm==2.3.2.post1)
+  Downloading nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl.metadata (2.1 kB)
+Requirement already satisfied: nvidia-nvshmem-cu13==3.4.5 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from torch->mamba_ssm==2.3.2.post1) (3.4.5)
+Collecting triton>=3.5.0 (from mamba_ssm==2.3.2.post1)
+  Downloading triton-3.8.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (978 bytes)
+Requirement already satisfied: nvidia-cufile==1.15.1.6.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (1.15.1.6)
+Requirement already satisfied: nvidia-cuda-cupti==13.0.85.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (13.0.85)
+Requirement already satisfied: nvidia-cusparse==12.6.3.3.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (12.6.3.3)
+Requirement already satisfied: nvidia-nvjitlink<14,>=13.0.88 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (13.0.88)
+Requirement already satisfied: nvidia-curand==10.4.0.35.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (10.4.0.35)
+Requirement already satisfied: nvidia-cuda-nvrtc==13.0.88.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (13.0.88)
+Collecting nvidia-cublas==13.1.1.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1)
+  Using cached nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Requirement already satisfied: nvidia-nvtx==13.0.85.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (13.0.85)
+Requirement already satisfied: nvidia-cufft==12.0.0.61.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (12.0.0.61)
+Requirement already satisfied: nvidia-cusolver==12.0.4.66.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (12.0.4.66)
+Requirement already satisfied: nvidia-cuda-runtime==13.0.96.* in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->mamba_ssm==2.3.2.post1) (13.0.96)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from sympy>=1.13.3->torch->mamba_ssm==2.3.2.post1) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from jinja2->torch->mamba_ssm==2.3.2.post1) (3.0.3)
+Collecting huggingface-hub<2.0,>=1.5.0 (from transformers->mamba_ssm==2.3.2.post1)
+  Downloading huggingface_hub-1.31.0-py3-none-any.whl.metadata (16 kB)
+Collecting pyyaml>=5.1 (from transformers->mamba_ssm==2.3.2.post1)
+  Using cached pyyaml-6.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting regex>=2025.10.22 (from transformers->mamba_ssm==2.3.2.post1)
+  Downloading regex-2026.9.10-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<0.24.0,>=0.23.1 (from transformers->mamba_ssm==2.3.2.post1)
+  Downloading tokenizers-0.23.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+Collecting typer (from transformers->mamba_ssm==2.3.2.post1)
+  Downloading typer-0.27.2-py3-none-any.whl.metadata (16 kB)
+Collecting safetensors>=0.8.0 (from transformers->mamba_ssm==2.3.2.post1)
+  Using cached safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Collecting click<9.0.0,>=8.4.2 (from huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting hf-xet<2.0.0,>=1.5.2 (from huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting httpx<1,>=0.23.0 (from huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting anyio (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting certifi (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting idna (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached idna-3.19-py3-none-any.whl.metadata (9.2 kB)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting exceptiongroup>=1.0.2 (from anyio->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers->mamba_ssm==2.3.2.post1)
+  Using cached exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)
+Collecting shellingham>=1.3.0 (from typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers->mamba_ssm==2.3.2.post1)
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading tilelang-0.1.8-cp38-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (43.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.5/43.5 MB 1.7 MB/s  0:00:26
+Downloading apache_tvm_ffi-0.1.9-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (2.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 2.5 MB/s  0:00:00
+Downloading z3_solver-4.15.4.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (29.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 29.3/29.3 MB 1.8 MB/s  0:00:16
+Downloading quack_kernels-0.6.5-py3-none-any.whl (729 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 729.6/729.6 kB 4.7 MB/s  0:00:00
+Downloading nvidia_cutlass_dsl-4.7.1-py3-none-any.whl (10 kB)
+Downloading nvidia_cutlass_dsl_libs_base-4.7.1-cp310-cp310-manylinux_2_28_x86_64.whl (2.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.8/2.8 MB 5.1 MB/s  0:00:00
+Downloading nvidia_cutlass_dsl_libs_core-4.7.1-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 5.5 MB/s  0:00:00
+Downloading nvidia_cutlass_dsl_libs_cu12-4.7.1-cp310-cp310-manylinux_2_28_x86_64.whl (88.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.7/88.7 MB 2.4 MB/s  0:00:36
+Downloading nvidia_cuda_nvdisasm-13.4.92-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 3.6 MB/s  0:00:01
+Downloading cuda_python-13.4.1-py3-none-any.whl (7.6 kB)
+Downloading cuda_bindings-13.4.1-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (7.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.2/7.2 MB 3.1 MB/s  0:00:02
+Downloading cuda_core-1.2.0-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (6.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.5/6.5 MB 3.5 MB/s  0:00:01
+Downloading protobuf-7.36.1-cp310-abi3-manylinux2014_x86_64.whl (343 kB)
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading backports_strenum-1.3.1-py3-none-any.whl (8.3 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Using cached einops-0.8.2-py3-none-any.whl (65 kB)
+Downloading ml_dtypes-0.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (412 kB)
+Downloading ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (183 kB)
+Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading torch-2.14.0-cp310-cp310-manylinux_2_28_x86_64.whl (554.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 554.6/554.6 MB 2.7 MB/s  0:03:47
+Using cached cuda_toolkit-13.0.3.0-py2.py3-none-any.whl (2.5 kB)
+Downloading nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl (553.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 553.1/553.1 MB 1.8 MB/s  0:03:26
+Using cached nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl (170.1 MB)
+Downloading nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl (216.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 216.0/216.0 MB 2.7 MB/s  0:01:29
+Using cached nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+Downloading triton-3.8.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (247.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 247.8/247.8 MB 2.3 MB/s  0:01:52
+Downloading torch_c_dlpack_ext-0.1.5-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (879 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 879.5/879.5 kB 3.4 MB/s  0:00:00
+Downloading transformers-5.17.0-py3-none-any.whl (12.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.3/12.3 MB 1.8 MB/s  0:00:06
+Downloading huggingface_hub-1.31.0-py3-none-any.whl (798 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 798.3/798.3 kB 1.5 MB/s  0:00:00
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Using cached hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+Using cached httpx-0.28.1-py3-none-any.whl (73 kB)
+Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading tokenizers-0.23.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 1.4 MB/s  0:00:02
+Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Using cached pyyaml-6.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (770 kB)
+Downloading regex-2026.9.10-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (796 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 796.3/796.3 kB 1.8 MB/s  0:00:00
+Using cached safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Using cached exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
+Using cached idna-3.19-py3-none-any.whl (68 kB)
+Using cached certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading typer-0.27.2-py3-none-any.whl (123 kB)
+Using cached annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Using cached rich-15.0.0-py3-none-any.whl (310 kB)
+Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+Using cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Using cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Building wheels for collected packages: mamba_ssm
+  Building wheel for mamba_ssm (pyproject.toml) ... done
+  Created wheel for mamba_ssm: filename=mamba_ssm-2.3.2.post1-cp310-cp310-linux_x86_64.whl size=349445127 sha256=72dbbb8d0ca24d594c14f8b48a7013d4097d8868dbf6af5f0204dbe1766e19ad
+  Stored in directory: /tmp/pip-ephem-wheel-cache-f93f73nm/wheels/df/41/4f/a939677185f1c1b521547048e16734312ce2b0c2acd3c933e3
+Successfully built mamba_ssm
+Installing collected packages: z3-solver, nvidia-cusparselt-cu13, cuda-toolkit, triton, tqdm, shellingham, safetensors, regex, pyyaml, pygments, psutil, protobuf, nvidia-nccl-cu13, nvidia-cuda-nvdisasm, nvidia-cublas, ninja, ml-dtypes, mdurl, idna, hf-xet, h11, exceptiongroup, einops, cuda-bindings, cloudpickle, click, certifi, backports.strenum, apache-tvm-ffi, annotated-doc, nvidia-cudnn-cu13, markdown-it-py, httpcore, cuda-core, anyio, rich, httpx, cuda-python, typer, torch, nvidia-cutlass-dsl-libs-core, huggingface-hub, torch-c-dlpack-ext, tokenizers, nvidia-cutlass-dsl-libs-base, transformers, tilelang, nvidia-cutlass-dsl-libs-cu12, nvidia-cutlass-dsl, quack-kernels, mamba_ssm
+  Attempting uninstall: nvidia-cusparselt-cu13
+    Found existing installation: nvidia-cusparselt-cu13 0.8.0
+    Uninstalling nvidia-cusparselt-cu13-0.8.0:
+      Successfully uninstalled nvidia-cusparselt-cu13-0.8.0
+  Attempting uninstall: triton
+    Found existing installation: triton 3.6.0
+    Uninstalling triton-3.6.0:
+      Successfully uninstalled triton-3.6.0
+  Attempting uninstall: nvidia-nccl-cu13
+    Found existing installation: nvidia-nccl-cu13 2.28.9
+    Uninstalling nvidia-nccl-cu13-2.28.9:
+      Successfully uninstalled nvidia-nccl-cu13-2.28.9
+  Attempting uninstall: nvidia-cublas
+    Found existing installation: nvidia-cublas 13.1.0.3
+    Uninstalling nvidia-cublas-13.1.0.3:
+      Successfully uninstalled nvidia-cublas-13.1.0.3
+  Attempting uninstall: cuda-bindings
+    Found existing installation: cuda-bindings 13.0.3
+    Uninstalling cuda-bindings-13.0.3:
+      Successfully uninstalled cuda-bindings-13.0.3
+  Attempting uninstall: nvidia-cudnn-cu13
+    Found existing installation: nvidia-cudnn-cu13 9.15.1.9
+    Uninstalling nvidia-cudnn-cu13-9.15.1.9:
+      Successfully uninstalled nvidia-cudnn-cu13-9.15.1.9
+  Attempting uninstall: torch
+    Found existing installation: torch 2.10.0+cu130
+    Uninstalling torch-2.10.0+cu130:
+      Successfully uninstalled torch-2.10.0+cu130
+Successfully installed annotated-doc-0.0.5 anyio-4.15.1 apache-tvm-ffi-0.1.9 backports.strenum-1.3.1 certifi-2026.7.22 click-8.5.0 cloudpickle-3.1.2 cuda-bindings-13.4.1 cuda-core-1.2.0 cuda-python-13.4.1 cuda-toolkit-13.0.3.0 einops-0.8.2 exceptiongroup-1.3.1 h11-0.16.0 hf-xet-1.6.0 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.31.0 idna-3.19 mamba_ssm-2.3.2.post1 markdown-it-py-4.2.0 mdurl-0.1.2 ml-dtypes-0.6.0 ninja-1.13.2 nvidia-cublas-13.1.1.3 nvidia-cuda-nvdisasm-13.4.92 nvidia-cudnn-cu13-9.24.0.43 nvidia-cusparselt-cu13-0.8.1 nvidia-cutlass-dsl-4.7.1 nvidia-cutlass-dsl-libs-base-4.7.1 nvidia-cutlass-dsl-libs-core-4.7.1 nvidia-cutlass-dsl-libs-cu12-4.7.1 nvidia-nccl-cu13-2.30.7 protobuf-7.36.1 psutil-7.2.2 pygments-2.21.0 pyyaml-6.0.3 quack-kernels-0.6.5 regex-2026.9.10 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 tilelang-0.1.8 tokenizers-0.23.2 torch-2.14.0 torch-c-dlpack-ext-0.1.5 tqdm-4.70.1 transformers-5.17.0 triton-3.8.0 typer-0.27.2 z3-solver-4.15.4.0
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install --force-reinstall torch==2.10.0 --index-url https://download.pytorch.org/whl/cu130
+Looking in indexes: https://download.pytorch.org/whl/cu130
+Collecting torch==2.10.0
+  Using cached torch-2.10.0%2Bcu130-cp310-cp310-manylinux_2_28_x86_64.whl.metadata (30 kB)
+Collecting filelock (from torch==2.10.0)
+  Using cached filelock-3.32.3-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.10.0 (from torch==2.10.0)
+  Using cached typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting sympy>=1.13.3 (from torch==2.10.0)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx>=2.5.1 (from torch==2.10.0)
+  Using cached networkx-3.4.2-py3-none-any.whl.metadata (6.3 kB)
+Collecting jinja2 (from torch==2.10.0)
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec>=0.8.5 (from torch==2.10.0)
+  Using cached fsspec-2026.7.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-bindings==13.0.3 (from torch==2.10.0)
+  Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.3 kB)
+Collecting nvidia-cuda-nvrtc==13.0.88 (from torch==2.10.0)
+  Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 5.8 MB/s  0:00:15
+Collecting nvidia-cuda-runtime==13.0.96 (from torch==2.10.0)
+  Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 6.4 MB/s  0:00:00
+Collecting nvidia-cuda-cupti==13.0.85 (from torch==2.10.0)
+  Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 6.4 MB/s  0:00:01
+Collecting nvidia-cudnn-cu13==9.15.1.9 (from torch==2.10.0)
+  Downloading nvidia_cudnn_cu13-9.15.1.9-py3-none-manylinux_2_27_x86_64.whl (351.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 351.3/351.3 MB 6.0 MB/s  0:00:59
+Collecting nvidia-cublas==13.1.0.3 (from torch==2.10.0)
+  Downloading nvidia_cublas-13.1.0.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 6.0 MB/s  0:01:10
+Collecting nvidia-cufft==12.0.0.61 (from torch==2.10.0)
+  Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 5.9 MB/s  0:00:36
+Collecting nvidia-curand==10.4.0.35 (from torch==2.10.0)
+  Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 6.0 MB/s  0:00:09
+Collecting nvidia-cusolver==12.0.4.66 (from torch==2.10.0)
+  Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 6.0 MB/s  0:00:33
+Collecting nvidia-cusparse==12.6.3.3 (from torch==2.10.0)
+  Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 5.9 MB/s  0:00:24
+Collecting nvidia-cusparselt-cu13==0.8.0 (from torch==2.10.0)
+  Downloading nvidia_cusparselt_cu13-0.8.0-py3-none-manylinux2014_x86_64.whl (169.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 169.9/169.9 MB 5.9 MB/s  0:00:28
+Collecting nvidia-nccl-cu13==2.28.9 (from torch==2.10.0)
+  Downloading nvidia_nccl_cu13-2.28.9-py3-none-manylinux_2_18_x86_64.whl (196.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.5/196.5 MB 6.0 MB/s  0:00:32
+Collecting nvidia-nvshmem-cu13==3.4.5 (from torch==2.10.0)
+  Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 6.1 MB/s  0:00:09
+Collecting nvidia-nvtx==13.0.85 (from torch==2.10.0)
+  Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
+Collecting nvidia-nvjitlink==13.0.88 (from torch==2.10.0)
+  Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (40.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.7/40.7 MB 6.0 MB/s  0:00:06
+Collecting nvidia-cufile==1.15.1.6 (from torch==2.10.0)
+  Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 5.7 MB/s  0:00:00
+Collecting triton==3.6.0 (from torch==2.10.0)
+  Using cached triton-3.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Collecting cuda-pathfinder~=1.1 (from cuda-bindings==13.0.3->torch==2.10.0)
+  Using cached cuda_pathfinder-1.6.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch==2.10.0)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.10.0)
+  Using cached markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Using cached torch-2.10.0%2Bcu130-cp310-cp310-manylinux_2_28_x86_64.whl (641.6 MB)
+Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.1 MB)
+Using cached triton-3.6.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (188.1 MB)
+Using cached cuda_pathfinder-1.6.0-py3-none-any.whl (54 kB)
+Using cached fsspec-2026.7.0-py3-none-any.whl (206 kB)
+Using cached networkx-3.4.2-py3-none-any.whl (1.7 MB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Using cached filelock-3.32.3-py3-none-any.whl (98 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Installing collected packages: nvidia-cusparselt-cu13, mpmath, typing-extensions, triton, sympy, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, nvidia-cublas, networkx, MarkupSafe, fsspec, filelock, cuda-pathfinder, nvidia-cusparse, nvidia-cufft, nvidia-cudnn-cu13, jinja2, cuda-bindings, nvidia-cusolver, torch
+  Attempting uninstall: nvidia-cusparselt-cu13
+    Found existing installation: nvidia-cusparselt-cu13 0.8.1
+    Uninstalling nvidia-cusparselt-cu13-0.8.1:
+      Successfully uninstalled nvidia-cusparselt-cu13-0.8.1
+  Attempting uninstall: mpmath
+    Found existing installation: mpmath 1.3.0
+    Uninstalling mpmath-1.3.0:
+      Successfully uninstalled mpmath-1.3.0
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.16.0
+    Uninstalling typing_extensions-4.16.0:
+      Successfully uninstalled typing_extensions-4.16.0
+  Attempting uninstall: triton
+    Found existing installation: triton 3.8.0
+    Uninstalling triton-3.8.0:
+      Successfully uninstalled triton-3.8.0
+  Attempting uninstall: sympy
+    Found existing installation: sympy 1.14.0
+    Uninstalling sympy-1.14.0:
+      Successfully uninstalled sympy-1.14.0
+  Attempting uninstall: nvidia-nvtx
+    Found existing installation: nvidia-nvtx 13.0.85
+    Uninstalling nvidia-nvtx-13.0.85:
+      Successfully uninstalled nvidia-nvtx-13.0.85
+  Attempting uninstall: nvidia-nvshmem-cu13
+    Found existing installation: nvidia-nvshmem-cu13 3.4.5
+    Uninstalling nvidia-nvshmem-cu13-3.4.5:
+      Successfully uninstalled nvidia-nvshmem-cu13-3.4.5
+  Attempting uninstall: nvidia-nvjitlink
+    Found existing installation: nvidia-nvjitlink 13.0.88
+    Uninstalling nvidia-nvjitlink-13.0.88:
+      Successfully uninstalled nvidia-nvjitlink-13.0.88
+  Attempting uninstall: nvidia-nccl-cu13
+    Found existing installation: nvidia-nccl-cu13 2.30.7
+    Uninstalling nvidia-nccl-cu13-2.30.7:
+      Successfully uninstalled nvidia-nccl-cu13-2.30.7
+  Attempting uninstall: nvidia-curand
+    Found existing installation: nvidia-curand 10.4.0.35
+    Uninstalling nvidia-curand-10.4.0.35:
+      Successfully uninstalled nvidia-curand-10.4.0.35
+  Attempting uninstall: nvidia-cufile
+    Found existing installation: nvidia-cufile 1.15.1.6
+    Uninstalling nvidia-cufile-1.15.1.6:
+      Successfully uninstalled nvidia-cufile-1.15.1.6
+  Attempting uninstall: nvidia-cuda-runtime
+    Found existing installation: nvidia-cuda-runtime 13.0.96
+    Uninstalling nvidia-cuda-runtime-13.0.96:
+      Successfully uninstalled nvidia-cuda-runtime-13.0.96
+  Attempting uninstall: nvidia-cuda-nvrtc
+    Found existing installation: nvidia-cuda-nvrtc 13.0.88
+    Uninstalling nvidia-cuda-nvrtc-13.0.88:
+      Successfully uninstalled nvidia-cuda-nvrtc-13.0.88
+  Attempting uninstall: nvidia-cuda-cupti
+    Found existing installation: nvidia-cuda-cupti 13.0.85
+    Uninstalling nvidia-cuda-cupti-13.0.85:
+      Successfully uninstalled nvidia-cuda-cupti-13.0.85
+  Attempting uninstall: nvidia-cublas
+    Found existing installation: nvidia-cublas 13.1.1.3
+    Uninstalling nvidia-cublas-13.1.1.3:
+      Successfully uninstalled nvidia-cublas-13.1.1.3
+  Attempting uninstall: networkx
+    Found existing installation: networkx 3.4.2
+    Uninstalling networkx-3.4.2:
+      Successfully uninstalled networkx-3.4.2
+  Attempting uninstall: MarkupSafe
+    Found existing installation: MarkupSafe 3.0.3
+    Uninstalling MarkupSafe-3.0.3:
+      Successfully uninstalled MarkupSafe-3.0.3
+  Attempting uninstall: fsspec
+    Found existing installation: fsspec 2026.7.0
+    Uninstalling fsspec-2026.7.0:
+      Successfully uninstalled fsspec-2026.7.0
+  Attempting uninstall: filelock
+    Found existing installation: filelock 3.32.3
+    Uninstalling filelock-3.32.3:
+      Successfully uninstalled filelock-3.32.3
+  Attempting uninstall: cuda-pathfinder
+    Found existing installation: cuda-pathfinder 1.6.0
+    Uninstalling cuda-pathfinder-1.6.0:
+      Successfully uninstalled cuda-pathfinder-1.6.0
+  Attempting uninstall: nvidia-cusparse
+    Found existing installation: nvidia-cusparse 12.6.3.3
+    Uninstalling nvidia-cusparse-12.6.3.3:
+      Successfully uninstalled nvidia-cusparse-12.6.3.3
+  Attempting uninstall: nvidia-cufft
+    Found existing installation: nvidia-cufft 12.0.0.61
+    Uninstalling nvidia-cufft-12.0.0.61:
+      Successfully uninstalled nvidia-cufft-12.0.0.61
+  Attempting uninstall: nvidia-cudnn-cu13
+    Found existing installation: nvidia-cudnn-cu13 9.24.0.43
+    Uninstalling nvidia-cudnn-cu13-9.24.0.43:
+      Successfully uninstalled nvidia-cudnn-cu13-9.24.0.43
+  Attempting uninstall: jinja2
+    Found existing installation: Jinja2 3.1.6
+    Uninstalling Jinja2-3.1.6:
+      Successfully uninstalled Jinja2-3.1.6
+  Attempting uninstall: cuda-bindings
+    Found existing installation: cuda-bindings 13.4.1
+    Uninstalling cuda-bindings-13.4.1:
+      Successfully uninstalled cuda-bindings-13.4.1
+  Attempting uninstall: nvidia-cusolver
+    Found existing installation: nvidia-cusolver 12.0.4.66
+    Uninstalling nvidia-cusolver-12.0.4.66:
+      Successfully uninstalled nvidia-cusolver-12.0.4.66
+  Attempting uninstall: torch
+    Found existing installation: torch 2.14.0
+    Uninstalling torch-2.14.0:
+      Successfully uninstalled torch-2.14.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+cuda-python 13.4.1 requires cuda-bindings~=13.4.1, but you have cuda-bindings 13.0.3 which is incompatible.
+Successfully installed MarkupSafe-3.0.3 cuda-bindings-13.0.3 cuda-pathfinder-1.6.0 filelock-3.32.3 fsspec-2026.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.4.2 nvidia-cublas-13.1.0.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.15.1.9 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.0 nvidia-nccl-cu13-2.28.9 nvidia-nvjitlink-13.0.88 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 sympy-1.14.0 torch-2.10.0+cu130 triton-3.6.0 typing-extensions-4.16.0
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import torch; import mamba_ssm; print('Torch:', torch.__version__); print('Mamba:', mamba_ssm.__version__); print('CUDA:', torch.cuda.is_available())"
+Torch: 2.10.0+cu130
+Mamba: 2.3.2.post1
+CUDA: True
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip check
+cuda-python 13.4.1 has requirement cuda-bindings~=13.4.1, but you have cuda-bindings 13.0.3.
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install --force-reinstall cuda-python==13.0.3
+Collecting cuda-python==13.0.3
+  Downloading cuda_python-13.0.3-py3-none-any.whl.metadata (4.7 kB)
+Collecting cuda-bindings~=13.0.3 (from cuda-python==13.0.3)
+  Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.3 kB)
+Collecting cuda-pathfinder~=1.1 (from cuda-python==13.0.3)
+  Downloading cuda_pathfinder-1.8.1-py3-none-any.whl.metadata (1.9 kB)
+Downloading cuda_python-13.0.3-py3-none-any.whl (7.6 kB)
+Using cached cuda_bindings-13.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.1 MB)
+Downloading cuda_pathfinder-1.8.1-py3-none-any.whl (62 kB)
+Installing collected packages: cuda-pathfinder, cuda-bindings, cuda-python
+  Attempting uninstall: cuda-pathfinder
+    Found existing installation: cuda-pathfinder 1.6.0
+    Uninstalling cuda-pathfinder-1.6.0:
+      Successfully uninstalled cuda-pathfinder-1.6.0
+  Attempting uninstall: cuda-bindings
+    Found existing installation: cuda-bindings 13.0.3
+    Uninstalling cuda-bindings-13.0.3:
+      Successfully uninstalled cuda-bindings-13.0.3
+  Attempting uninstall: cuda-python
+    Found existing installation: cuda-python 13.4.1
+    Uninstalling cuda-python-13.4.1:
+      Successfully uninstalled cuda-python-13.4.1
+Successfully installed cuda-bindings-13.0.3 cuda-pathfinder-1.8.1 cuda-python-13.0.3
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip check
+No broken requirements found.
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import torch; from mamba_ssm import Mamba; x=torch.randn(2,32,16,device='cuda'); model=Mamba(d_model=16,d_state=16,d_conv=4,expand=2).cuda(); y=model(x); print('Input:',x.shape); print('Output:',y.shape); print('GPU:',torch.cuda.get_device_name(0)); print('Mamba CUDA forward: OK')"
+Input: torch.Size([2, 32, 16])
+Output: torch.Size([2, 32, 16])
+GPU: NVIDIA GeForce GTX 1650
+Mamba CUDA forward: OK
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -m pip install scipy
+Collecting scipy
+  Using cached scipy-1.15.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/truongtn/venvs/mamba_cnn_number_1/lib/python3.10/site-packages (from scipy) (2.2.6)
+Using cached scipy-1.15.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (37.7 MB)
+Installing collected packages: scipy
+Successfully installed scipy-1.15.3
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find ~ -maxdepth 3 -type d -name "MoDANet-dataset" -print
+/home/truongtn/venvs/MoDANet-dataset
+/home/truongtn/MoDANet-dataset
+/home/truongtn/Mamba_cnn_number_1/MoDANet-dataset
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ du -sh \
+/home/truongtn/venvs/MoDANet-dataset \
+/home/truongtn/MoDANet-dataset \
+/home/truongtn/Mamba_cnn_number_1/MoDANet-dataset
+223M	/home/truongtn/venvs/MoDANet-dataset
+18G	/home/truongtn/MoDANet-dataset
+18G	/home/truongtn/Mamba_cnn_number_1/MoDANet-dataset
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find /home/truongtn/MoDANet-dataset -type f | wc -l
+find /home/truongtn/Mamba_cnn_number_1/MoDANet-dataset -type f | wc -l
+450121
+450120
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find /home/truongtn/MoDANet-dataset -type f | wc -l
+find /home/truongtn/Mamba_cnn_number_1/MoDANet-dataset -type f | wc -l
+450120
+450120
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ diff \
+<(cd /home/truongtn/MoDANet-dataset && find . -type f -printf '%P %s\n' | sort) \
+<(cd /home/truongtn/Mamba_cnn_number_1/MoDANet-dataset && find . -type f -printf '%P %s\n' | sort) \
+| head
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git ls-files MoDANet-dataset | head
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ ls 
+mamba-main  mamba-main_old_2.2.4  Model.py  project_overview.md  Train.py
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find ~/MoDANet-dataset -type f -name "*.mat" | head -n 1
+/home/truongtn/MoDANet-dataset/SNR-07dB/QPSK/+51/data00048308.mat
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "from scipy.io import loadmat; p='/home/truongtn/MoDANet-dataset/SNR-07dB/QPSK/+51/data00048308.mat'; d=loadmat(p); print('Keys:', [k for k in d.keys() if not k.startswith('__')]); x=d['data']; print('Type:', type(x)); print('Shape:', x.shape); print('Dtype:', x.dtype)"
+Keys: ['data']
+Type: <class 'numpy.ndarray'>
+Shape: (1024, 5, 2)
+Dtype: float32
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ mkdir -p configs models train data checkpoints logs results experiments store
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ ls
+checkpoints  configs  data  experiments  logs  mamba-main  mamba-main_old_2.2.4  Model.py  models  project_overview.md  results  store  train  Train.py
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ mv Model.py models/mamba_cnn.py
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ mv Train.py train/train_mamba_cnn.py
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find . -maxdepth 2 -type f | sort
+./.git/COMMIT_EDITMSG
+./.git/config
+./.git/description
+./.git/HEAD
+./.gitignore
+./.git/index
+./mamba-main/AUTHORS
+./mamba-main/.gitignore
+./mamba-main/.gitmodules
+./mamba-main/LICENSE
+./mamba-main/MANIFEST.in
+./mamba-main_old_2.2.4/AUTHORS
+./mamba-main_old_2.2.4/LICENSE
+./mamba-main_old_2.2.4/pyproject.toml
+./mamba-main_old_2.2.4/README_mamba_original.md
+./mamba-main_old_2.2.4/setup.py
+./mamba-main_old_2.2.4/usage.md
+./mamba-main/pyproject.toml
+./mamba-main/README.md
+./mamba-main/setup.py
+./mamba-main/usage.md
+./models/mamba_cnn.py
+./project_overview.md
+./train/train_mamba_cnn.py
+./.vscode/settings.json
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ rm -rf mamba-main_old_2.2.4
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ find . -maxdepth 2 \
+  \( -type d -o -type f \) \
+  ! -path "./.git/*" \
+  | sort
+.
+./checkpoints
+./configs
+./data
+./experiments
+./.git
+./.gitignore
+./logs
+./mamba-main
+./mamba-main/assets
+./mamba-main/AUTHORS
+./mamba-main/benchmarks
+./mamba-main/csrc
+./mamba-main/evals
+./mamba-main/.github
+./mamba-main/.gitignore
+./mamba-main/.gitmodules
+./mamba-main/LICENSE
+./mamba-main/mamba_ssm
+./mamba-main/MANIFEST.in
+./mamba-main/pyproject.toml
+./mamba-main/README.md
+./mamba-main/rocm_patch
+./mamba-main/setup.py
+./mamba-main/tests
+./mamba-main/usage.md
+./models
+./models/mamba_cnn.py
+./project_overview.md
+./results
+./store
+./train
+./train/train_mamba_cnn.py
+./.vscode
+./.vscode/settings.json
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    Model.py
+	deleted:    Train.py
+	deleted:    mamba-main_old_2.2.4/AUTHORS
+	deleted:    mamba-main_old_2.2.4/LICENSE
+	deleted:    mamba-main_old_2.2.4/README_mamba_original.md
+	deleted:    mamba-main_old_2.2.4/assets/selection.png
+	deleted:    mamba-main_old_2.2.4/assets/ssd_algorithm.png
+	deleted:    mamba-main_old_2.2.4/benchmarks/benchmark_generation_mamba_simple.py
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/reverse_scan.cuh
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan.cpp
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan.h
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_bf16_complex.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_bf16_real.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp16_complex.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp16_real.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp32_complex.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp32_real.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_kernel.cuh
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_common.h
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_bf16.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_fp16.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_fp32.cu
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_kernel.cuh
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/static_switch.h
+	deleted:    mamba-main_old_2.2.4/csrc/selective_scan/uninitialized_copy.cuh
+	deleted:    mamba-main_old_2.2.4/evals/lm_harness_eval.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/.github/workflows/publish.yaml
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/.gitignore
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/AUTHORS
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/LICENSE
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/README.md
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/causal_conv1d_interface.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/causal_conv1d_varlen.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/cpp_functions.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d.cpp
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d.h
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_bwd.cu
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_common.h
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_fwd.cu
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_update.cu
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/static_switch.h
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/rocm_patch/rocm6_0.patch
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/setup.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/tests/test_causal_conv1d.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/tmp.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/distributed/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/distributed/distributed_utils.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/distributed/tensor_parallel.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/models/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/models/config_mamba.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/models/mixer_seq_simple.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/block.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/mamba2.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/mamba2_simple.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/mamba_simple.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/mha.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/mlp.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/modules/ssd_minimal.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/selective_scan_interface.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/k_activations.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/layer_norm.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/layernorm_gated.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/selective_state_update.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/softplus.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_bmm.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_chunk_scan.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_chunk_state.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_combined.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_state_passing.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/utils/__init__.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/utils/generation.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/utils/hf.py
+	deleted:    mamba-main_old_2.2.4/mamba_ssm/utils/torch.py
+	deleted:    mamba-main_old_2.2.4/pyproject.toml
+	deleted:    mamba-main_old_2.2.4/rocm_patch/rocm6_0.patch
+	deleted:    mamba-main_old_2.2.4/setup.py
+	deleted:    mamba-main_old_2.2.4/tests/ops/test_selective_scan.py
+	deleted:    mamba-main_old_2.2.4/tests/ops/triton/test_layernorm_gated.py
+	deleted:    mamba-main_old_2.2.4/tests/ops/triton/test_selective_state_update.py
+	deleted:    mamba-main_old_2.2.4/tests/ops/triton/test_ssd.py
+	deleted:    mamba-main_old_2.2.4/tests/test_generation.py
+	deleted:    mamba-main_old_2.2.4/usage.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	models/
+	train/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git add -A
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git commit -m "thực hiện xóa mamba cũ và tái cấu trúc cây thư mục"
+[main a8de452] thực hiện xóa mamba cũ và tái cấu trúc cây thư mục
+ 87 files changed, 17187 deletions(-)
+ delete mode 100644 mamba-main_old_2.2.4/AUTHORS
+ delete mode 100644 mamba-main_old_2.2.4/LICENSE
+ delete mode 100644 mamba-main_old_2.2.4/README_mamba_original.md
+ delete mode 100644 mamba-main_old_2.2.4/assets/selection.png
+ delete mode 100644 mamba-main_old_2.2.4/assets/ssd_algorithm.png
+ delete mode 100644 mamba-main_old_2.2.4/benchmarks/benchmark_generation_mamba_simple.py
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/reverse_scan.cuh
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan.cpp
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan.h
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_bf16_complex.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_bf16_real.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp16_complex.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp16_real.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp32_complex.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_fp32_real.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_bwd_kernel.cuh
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_common.h
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_bf16.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_fp16.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_fp32.cu
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/selective_scan_fwd_kernel.cuh
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/static_switch.h
+ delete mode 100644 mamba-main_old_2.2.4/csrc/selective_scan/uninitialized_copy.cuh
+ delete mode 100644 mamba-main_old_2.2.4/evals/lm_harness_eval.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/.github/workflows/publish.yaml
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/.gitignore
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/AUTHORS
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/LICENSE
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/README.md
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/causal_conv1d_interface.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/causal_conv1d_varlen.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/causal_conv1d/cpp_functions.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d.cpp
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d.h
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_bwd.cu
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_common.h
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_fwd.cu
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/causal_conv1d_update.cu
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/csrc/static_switch.h
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/rocm_patch/rocm6_0.patch
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/setup.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/tests/test_causal_conv1d.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/causal_conv1d_main/tmp.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/distributed/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/distributed/distributed_utils.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/distributed/tensor_parallel.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/models/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/models/config_mamba.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/models/mixer_seq_simple.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/block.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/mamba2.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/mamba2_simple.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/mamba_simple.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/mha.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/mlp.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/modules/ssd_minimal.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/selective_scan_interface.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/k_activations.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/layer_norm.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/layernorm_gated.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/selective_state_update.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/softplus.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_bmm.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_chunk_scan.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_chunk_state.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_combined.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/ops/triton/ssd_state_passing.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/utils/__init__.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/utils/generation.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/utils/hf.py
+ delete mode 100644 mamba-main_old_2.2.4/mamba_ssm/utils/torch.py
+ delete mode 100644 mamba-main_old_2.2.4/pyproject.toml
+ delete mode 100644 mamba-main_old_2.2.4/rocm_patch/rocm6_0.patch
+ delete mode 100644 mamba-main_old_2.2.4/setup.py
+ delete mode 100644 mamba-main_old_2.2.4/tests/ops/test_selective_scan.py
+ delete mode 100644 mamba-main_old_2.2.4/tests/ops/triton/test_layernorm_gated.py
+ delete mode 100644 mamba-main_old_2.2.4/tests/ops/triton/test_selective_state_update.py
+ delete mode 100644 mamba-main_old_2.2.4/tests/ops/triton/test_ssd.py
+ delete mode 100644 mamba-main_old_2.2.4/tests/test_generation.py
+ delete mode 100644 mamba-main_old_2.2.4/usage.md
+ rename Model.py => models/mamba_cnn.py (100%)
+ rename Train.py => train/train_mamba_cnn.py (100%)
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git push
+Username for 'https://github.com': T29VN
+Password for 'https://T29VN@github.com': 
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (4/4), 456 bytes | 456.00 KiB/s, done.
+Total 4 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/T29VN/Mamba_cnn_-using-to-learning-.git
+   b88ae2c..a8de452  main -> main
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git rm --cached project_overview.md
+rm 'project_overview.md'
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	deleted:    project_overview.md
+
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git commit -m "remove outdated project overview from repository"
+[main 61512a7] remove outdated project overview from repository
+ 1 file changed, 255 deletions(-)
+ delete mode 100644 project_overview.md
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ git push
+Username for 'https://github.com': T29VN
+Password for 'https://T29VN@github.com': 
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (2/2), 250 bytes | 250.00 KiB/s, done.
+Total 2 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/T29VN/Mamba_cnn_-using-to-learning-.git
+   a8de452..61512a7  main -> main
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ 
