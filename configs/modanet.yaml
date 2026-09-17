@@ -1,0 +1,34 @@
+dataset:
+  root: /home/truongtn/MoDANet-dataset
+  mat_variable: data
+
+  num_samples: 450120
+
+  snapshots: 1024
+  antennas: 5
+  iq_channels: 2
+
+  num_mod_classes: 12
+  modulations:
+    - 16APSK
+    - 16QAM
+    - 4PAM
+    - 64QAM
+    - 8FSK
+    - 8PSK
+    - DSB-SC
+    - LFM
+    - PSK
+    - QFSK
+    - QPSK
+    - SSB-SC
+
+  doa_min: -60
+  doa_max: 60
+  doa_step: 1
+  num_doa_classes: 121
+
+loader:
+  num_workers: 8
+  pin_memory: false
+  persistent_workers: true
