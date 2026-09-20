@@ -995,3 +995,291 @@ remote: Resolving deltas: 100% (1/1), completed with 1 local object.
 To https://github.com/T29VN/Mamba_cnn_-using-to-learning-.git
    a8de452..61512a7  main -> main
 (mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ 
+
+
+
+---------------------------------------------------hết bài------------------------------------------------------
+
+truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ source ~/venvs/mamba_cnn_number_1/bin/activate
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ cat > data/modanet_dataset.py <<'PY'
+from pathlib import Path
+import re
+
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ cat > data/modanet_dataset.py <<'PY'
+from pathlib import Path
+import rey.io import loadmat
+from torch.utils.data import Dataset
+import numpy as np
+import torch
+from scipy.io import loadmat
+from torch.utils.data import Dataset
+    "64QAM",
+    "PSK",
+MODULATIONS = [
+    "16QAM",
+    "64QAM",
+    "PSK",,
+    "QPSK",",
+    "8PSK",
+    "QFSK",
+    "8FSK",",
+    "16APSK",
+    "4PAM",
+    "LFM",
+    "DSB-SC",= {name: idx for idx, name in enumerate(MODULATIONS)}
+    "SSB-SC",
+]
+class MoDANetDataset(Dataset):
+MOD_TO_INDEX = {name: idx for idx, name in enumerate(MODULATIONS)}
+        self.root_dir = Path(root_dir).expanduser().resolve()
+
+class MoDANetDataset(Dataset):s_dir():
+    def __init__(self, root_dir):or(
+        self.root_dir = Path(root_dir).expanduser().resolve()oot_dir}"
+            )
+        if not self.root_dir.is_dir():
+            raise FileNotFoundError(
+                f"Không tìm thấy MoDANet dataset tại: {self.root_dir}"
+            )
+
+        self.files = sorted(
+            self.root_dir.glob("SNR*dB/*/*/*.mat")
+        )       f"Không tìm thấy file .mat nào trong: {self.root_dir}"
+            )
+        if not self.files:
+            raise RuntimeError(
+                f"Không tìm thấy file .mat nào trong: {self.root_dir}"
+            )
+    def __getitem__(self, index):
+    def __len__(self):lf.files[index]
+        return len(self.files)
+        # --------------------------------------------------
+    def __getitem__(self, index): MATLAB
+        file_path = self.files[index], 2)
+        # --------------------------------------------------
+        # --------------------------------------------------
+PY      }   "path": str(file_path),or(doa_label, dtype=torch.long),
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "from data.modanet_dataset import MoDANetDataset; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); s=ds[0]; print('Total samples:', len(ds)); print('x shape:', s['x'].shape); print('x dtype:', s['x'].dtype); print('mod_label:', s['mod_label'].item()); print('doa_label:', s['doa_label'].item()); print('doa_deg:', s['doa_deg']); print('snr_db:', s['snr_db']); print('path:', s['path'])"
+Total samples: 450120
+x shape: torch.Size([2, 5, 1024])
+x dtype: torch.float32
+mod_label: 7
+doa_label: 60
+doa_deg: 0
+snr_db: 0
+path: /home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154271.mat
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "from data.modanet_dataset import MoDANetDataset; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); [print(p) for p in ds.files[:10]]"
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154271.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154272.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154273.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154274.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154275.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154276.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154277.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154278.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154279.mat
+/home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154280.mat
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=4,shuffle=True,num_workers=0); b=next(iter(dl)); print('x:',b['x'].shape); print('mod_label:',b['mod_label'].shape,b['mod_label']); print('doa_label:',b['doa_label'].shape,b['doa_label']); print('doa_deg:',b['doa_deg']); print('snr_db:',b['snr_db'])"
+x: torch.Size([4, 2, 5, 1024])
+mod_label: torch.Size([4]) tensor([1, 8, 0, 1])
+doa_label: torch.Size([4]) tensor([15,  2, 61, 13])
+doa_deg: tensor([-45, -58,   1, -47])
+snr_db: tensor([9, 3, 1, 7])
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; t=time.time(); ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); print('Init time:', round(time.time()-t,3), 'seconds'); print('Samples:', len(ds))"
+Init time: 2.447 seconds
+Samples: 450120
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=32,shuffle=True,num_workers=0); t=time.time(); n=0; it=iter(dl); [(next(it), globals().__setitem__('n', n+32)) for _ in range(100)]; dt=time.time()-t; print('Time:',round(dt,3),'s'); print('Samples:',n); print('Speed:',round(n/dt,1),'samples/s')"
+Time: 1.824 s
+Samples: 3200
+Speed: 1753.9 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ ^C
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=32,shuffle=True,num_workers=2,persistent_workers=True); t=time.time(); n=0; it=iter(dl); [(next(it), globals().__setitem__('n', n+32)) for _ in range(100)]; dt=time.time()-t; print('Time:',round(dt,3),'s'); print('Samples:',n); print('Speed:',round(n/dt,1),'samples/s')"
+Time: 1.049 s
+Samples: 3200
+Speed: 3051.1 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=32,shuffle=True,num_workers=4,persistent_workers=True); t=time.time(); n=0; it=iter(dl); [(next(it), globals().__setitem__('n', n+32)) for _ in range(100)]; dt=time.time()-t; print('Time:',round(dt,3),'s'); print('Samples:',n); print('Speed:',round(n/dt,1),'samples/s')"
+Time: 0.597 s
+Samples: 3200
+Speed: 5363.8 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=32,shuffle=True,num_workers=8,persistent_workers=True); t=time.time(); n=0; it=iter(dl); [(next(it), globals().__setitem__('n', n+32)) for _ in range(100)]; dt=time.time()-t; print('Time:',round(dt,3),'s'); print('Samples:',n); print('Speed:',round(n/dt,1),'samples/s')"
+Time: 0.423 s
+Samples: 3200
+Speed: 7559.0 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ nproc
+12
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import time; from data.modanet_dataset import MoDANetDataset; from torch.utils.data import DataLoader; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); dl=DataLoader(ds,batch_size=32,shuffle=True,num_workers=10,persistent_workers=True); t=time.time(); n=0; it=iter(dl); [(next(it), globals().__setitem__('n', n+32)) for _ in range(100)]; dt=time.time()-t; print('Time:',round(dt,3),'s'); print('Samples:',n); print('Speed:',round(n/dt,1),'samples/s')"
+Time: 0.412 s
+Samples: 3200
+Speed: 7763.7 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 - <<'PY'
+import time
+import torch
+from torch.utils.data import DataLoader
+from data.modanet_dataset import MoDANetDataset
+
+ds = MoDANetDataset('/home/truongtn/MoDANet-dataset')
+
+dl = DataLoader(
+    ds,
+    batch_size=32,
+    shuffle=True,
+    num_workers=8,
+    persistent_workers=True,
+    pin_memory=False,
+)
+
+it = iter(dl)
+
+torch.cuda.synchronize()
+t0 = time.time()
+
+for _ in range(100):
+    batch = next(it)
+    x = batch["x"].to("cuda")
+
+torch.cuda.synchronize()
+
+dt = time.time() - t0
+
+print("Time:", round(dt, 3), "s")
+print("Speed:", round(3200 / dt, 1), "samples/s")
+PY
+Time: 0.281 s
+Speed: 11393.8 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 - <<'PY'
+import time
+import torch
+from torch.utils.data import DataLoader
+from data.modanet_dataset import MoDANetDataset
+
+ds = MoDANetDataset('/home/truongtn/MoDANet-dataset')
+
+dl = DataLoader(
+    ds,
+    batch_size=32,
+    shuffle=True,
+    num_workers=8,
+    persistent_workers=True,
+    pin_memory=True,
+)
+
+it = iter(dl)
+
+torch.cuda.synchronize()
+t0 = time.time()
+
+for _ in range(100):
+    batch = next(it)
+    x = batch["x"].to("cuda", non_blocking=True)
+
+torch.cuda.synchronize()
+
+dt = time.time() - t0
+
+print("Time:", round(dt, 3), "s")
+print("Speed:", round(3200 / dt, 1), "samples/s")
+PY
+Time: 0.308 s
+Speed: 10376.4 samples/s
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ touch configs/modanet.yaml
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "from data.modanet_dataset import MoDANetDataset; ds=MoDANetDataset('/home/truongtn/MoDANet-dataset'); s=ds[0]; print('path:',s['path']); print('mod_label:',s['mod_label'].item()); print('doa_deg:',s['doa_deg']); print('doa_label:',s['doa_label'].item())"
+path: /home/truongtn/MoDANet-dataset/SNR+00dB/16APSK/+00/data00154271.mat
+mod_label: 0
+doa_deg: 0
+doa_label: 60
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ cat > configs/modanet.yaml <<'YAML'
+dataset:
+  root: /home/truongtn/MoDANet-dataset
+  mat_variable: data
+
+  num_samples: 450120
+
+  snapshots: 1024
+  antennas: 5
+  iq_channels: 2
+
+  num_mod_classes: 12
+  modulations:
+    - 16APSK
+    - 16QAM
+    - 4PAM
+    - 64QAM
+    - 8FSK
+    - 8PSK
+    - DSB-SC
+    - LFM
+    - PSK
+    - QFSK
+    - QPSK
+    - SSB-SC
+
+  doa_min: -60
+  doa_max: 60
+  doa_step: 1
+  num_doa_classes: 121
+
+loader:
+  num_workers: 8
+  pin_memory: false
+  persistent_workers: true
+YAML
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ cat configs/modanet.yaml
+dataset:
+  root: /home/truongtn/MoDANet-dataset
+  mat_variable: data
+
+  num_samples: 450120
+
+  snapshots: 1024
+  antennas: 5
+  iq_channels: 2
+
+  num_mod_classes: 12
+  modulations:
+    - 16APSK
+    - 16QAM
+    - 4PAM
+    - 64QAM
+    - 8FSK
+    - 8PSK
+    - DSB-SC
+    - LFM
+    - PSK
+    - QFSK
+    - QPSK
+    - SSB-SC
+
+  doa_min: -60
+  doa_max: 60
+  doa_step: 1
+  num_doa_classes: 121
+
+loader:
+  num_workers: 8
+  pin_memory: false
+  persistent_workers: true
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ ^C
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 -c "import yaml; cfg=yaml.safe_load(open('configs/modanet.yaml')); print(cfg['dataset']['root']); print(cfg['dataset']['num_samples']); print(cfg['dataset']['modulations']); print(cfg['loader'])"
+/home/truongtn/MoDANet-dataset
+450120
+['16APSK', '16QAM', '4PAM', '64QAM', '8FSK', '8PSK', 'DSB-SC', 'LFM', 'PSK', 'QFSK', 'QPSK', 'SSB-SC']
+{'num_workers': 8, 'pin_memory': False, 'persistent_workers': True}
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ python3 - <<'PY'
+import yaml
+from data.modanet_dataset import MoDANetDataset
+
+with open("configs/modanet.yaml", "r") as f:
+    cfg = yaml.safe_load(f)
+
+dataset = MoDANetDataset(cfg["dataset"]["root"])
+
+print("Dataset root:", dataset.root_dir)
+print("Samples:", len(dataset))
+print("Expected samples:", cfg["dataset"]["num_samples"])
+print("Match:", len(dataset) == cfg["dataset"]["num_samples"])
+PY
+Dataset root: /home/truongtn/MoDANet-dataset
+Samples: 450120
+Expected samples: 450120
+Match: True
+(mamba_cnn_number_1) truongtn@truongtn-Nitro-AN515-45:~/Mamba_cnn_number_1$ 
