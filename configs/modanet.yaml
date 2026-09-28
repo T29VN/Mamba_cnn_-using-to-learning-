@@ -32,3 +32,15 @@ loader:
   num_workers: 8
   pin_memory: false
   persistent_workers: true
+
+model:
+  mamba:
+    d_model: 64
+    num_layers: 2
+    d_state: 16
+    d_conv: 4
+    expand: 2
+    dt_rank: auto
+
+  signal_adapter:
+    delta_init_std: 0.001
