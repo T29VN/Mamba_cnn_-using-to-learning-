@@ -55,3 +55,16 @@ model:
     pool_kernel_size: 2
     pool_stride: 2
     feature_dim: 128
+
+training:
+  seed: 42
+  train_fraction: 0.8
+
+  batch_size: 64
+  epochs: 10
+
+  learning_rate: 0.001
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+
+  output_dir: outputs/modanet_doa
