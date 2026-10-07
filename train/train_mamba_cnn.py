@@ -1,6 +1,7 @@
 """Single-GPU FP32 DOA training, evaluation and resumable checkpoints."""
 
 import argparse
+from contextlib import ExitStack
 from copy import deepcopy
 import csv
 import math
@@ -8,6 +9,7 @@ from numbers import Integral, Real
 import os
 from pathlib import Path
 import random
+import shutil
 import sys
 from tempfile import NamedTemporaryFile
 import time
@@ -20,6 +22,7 @@ import yaml
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+RUN_CONFIG_DIR = PROJECT_ROOT / "store" / "run_config"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -357,8 +360,51 @@ def _project_path(path):
     return (PROJECT_ROOT / path).resolve() if not path.is_absolute() else path.resolve()
 
 
+def check_run_csv_destinations(run_config_dir):
+    """Fail before training if either fixed backup name is occupied."""
+    paths = tuple(Path(run_config_dir) / name for name in ("metrics.csv", "eval_by_snr.csv"))
+    for path in paths:
+        if path.exists() or path.is_symlink():
+            raise FileExistsError(f"Backup already exists: {path}; rename the previous CSV files before running again")
+    return paths
+
+
+def backup_run_csvs(metrics_path, snr_path, run_config_dir=RUN_CONFIG_DIR):
+    """Copy completed CSV bytes, reserving both names without overwriting files."""
+    sources = (Path(metrics_path), Path(snr_path))
+    for source in sources:
+        if not source.is_file():
+            raise FileNotFoundError(f"Cannot back up missing CSV file: {source}")
+    destinations = check_run_csv_destinations(run_config_dir)
+    Path(run_config_dir).mkdir(parents=True, exist_ok=True)
+    created = []
+    try:
+        with ExitStack() as stack:
+            outputs = []
+            for destination in destinations:
+                # Exclusive creation also protects against a conflict after preflight.
+                try:
+                    output = stack.enter_context(destination.open("xb"))
+                except FileExistsError as exc:
+                    raise FileExistsError(
+                        f"Backup already exists: {destination}; rename the previous CSV files before running again"
+                    ) from exc
+                created.append(destination)
+                outputs.append(output)
+            for source, output in zip(sources, outputs):
+                with source.open("rb") as input_file:
+                    shutil.copyfileobj(input_file, output)
+    except BaseException:
+        for path in created:
+            path.unlink(missing_ok=True)
+        raise
+    for destination in destinations:
+        print(f"CSV backup: {destination}", flush=True)
+
+
 def run_training(cfg, resume=None):
     """Run configured epochs; tests may supply a small in-memory configuration."""
+    check_run_csv_destinations(RUN_CONFIG_DIR)
     training = validate_training_config(cfg)
     loader_config = validate_loader_config(_required(cfg, "loader", "config"))
     dataset_config = _required(cfg, "dataset", "config")
@@ -463,6 +509,7 @@ def run_training(cfg, resume=None):
     final_metrics = evaluate(model, eval_loader, criterion, device, dataset_config,
                              pin_memory=loader_config["pin_memory"])
     write_snr_metrics_csv(snr_path, final_metrics["by_snr"])
+    backup_run_csvs(metrics_path, snr_path, run_config_dir=RUN_CONFIG_DIR)
     print(f"Final holdout (best epoch {best['epoch']}) | loss={final_metrics['loss']:.6f} "
           f"| accuracy={final_metrics['accuracy']:.2%} "
           f"| RMSE={final_metrics['rmse_deg']:.6f} deg", flush=True)

@@ -9,6 +9,8 @@ MoDANet-dataset/
 # ============================================
 *.npy
 *.csv
+!store/run_config/
+!store/run_config/*.csv
 
 # ============================================
 # Model checkpoints (nặng, tự train lại được)

@@ -284,6 +284,79 @@ def test_csv():
     print("PASS: incremental history CSV, exact headers/values and numeric SNR ordering")
 
 
+def test_run_csv_backups(cfg):
+    assert training.RUN_CONFIG_DIR == PROJECT_ROOT / "store" / "run_config"
+    with TemporaryDirectory() as directory, redirect_stdout(io.StringIO()):
+        root = Path(directory)
+        sources = (root / "metrics.csv", root / "eval_by_snr.csv")
+        contents = (b"epoch,loss\r\n1,0.123456789\r\n", b"snr_db,rmse_deg\n-10,2.5\n")
+        for source, content in zip(sources, contents):
+            source.write_bytes(content)
+
+        def backup(destination):
+            training.backup_run_csvs(*sources, run_config_dir=destination)
+
+        destination = root / "new" / "run_config"
+        backup(destination)
+        for source, content in zip(sources, contents):
+            assert source.read_bytes() == content
+            assert (destination / source.name).read_bytes() == content
+
+        for name in ("metrics.csv", "eval_by_snr.csv"):
+            conflict_dir = root / f"conflict-{name}"
+            conflict_dir.mkdir()
+            conflict = conflict_dir / name
+            conflict.write_bytes(b"previous run")
+            assert_raises(FileExistsError, lambda: backup(conflict_dir), "rename")
+            assert list(conflict_dir.iterdir()) == [conflict]
+            assert conflict.read_bytes() == b"previous run"
+            with patch.object(training, "RUN_CONFIG_DIR", conflict_dir), \
+                    patch.object(training, "MoDANetDatasetLoader") as dataset, \
+                    patch.object(training, "DOAMambaNet") as model, \
+                    patch.object(training, "train_one_epoch") as train, \
+                    patch.object(torch.cuda, "is_available") as cuda:
+                for resume in (None, root / "last.pt"):
+                    assert_raises(FileExistsError, lambda: training.run_training(cfg, resume), "rename")
+                for mock in (dataset, model, train, cuda):
+                    mock.assert_not_called()
+
+        numbered = root / "numbered"
+        numbered.mkdir()
+        for name in ("metrics_1.csv", "eval_by_snr_1.csv"):
+            (numbered / name).write_bytes(b"archived run")
+        backup(numbered)
+        for name in ("metrics_1.csv", "eval_by_snr_1.csv"):
+            assert (numbered / name).read_bytes() == b"archived run"
+
+        for index, source in enumerate(sources):
+            source.unlink()
+            missing_dir = root / f"missing-{index}"
+            assert_raises(FileNotFoundError, lambda: backup(missing_dir), str(source))
+            assert not missing_dir.exists()
+            source.write_bytes(contents[index])
+
+        failed_dir = root / "failed-copy"
+        with patch.object(training.shutil, "copyfileobj", side_effect=OSError("copy failed")):
+            assert_raises(OSError, lambda: backup(failed_dir), "copy failed")
+        assert not list(failed_dir.iterdir()), "Failed copies must not leave partial backups"
+
+        # Simulate a destination appearing after the last existence check.
+        race_dir = root / "race"
+        race_dir.mkdir()
+        check = training.check_run_csv_destinations
+
+        def race_check(path):
+            paths = check(path)
+            paths[1].write_bytes(b"another run")
+            return paths
+
+        with patch.object(training, "check_run_csv_destinations", side_effect=race_check):
+            assert_raises(FileExistsError, lambda: backup(race_dir), "rename")
+        assert (race_dir / "eval_by_snr.csv").read_bytes() == b"another run"
+        assert not (race_dir / "metrics.csv").exists()
+    print("PASS: exact CSV backups, fixed-name conflicts/preflight, numbered archives, missing sources and copy failures")
+
+
 def test_epoch_orchestration(cfg):
     """Exercise real checkpoint/CSV orchestration with deterministic CPU stand-ins."""
     class EpochModel(nn.Module):
@@ -303,6 +376,7 @@ def test_epoch_orchestration(cfg):
 
     def fake_train(model, loader, criterion, optimizer, device, dataset_config,
                    grad_clip_norm, *, pin_memory=False):
+        assert not training.RUN_CONFIG_DIR.exists(), "No backups during training"
         assert isinstance(criterion, nn.CrossEntropyLoss)
         assert isinstance(optimizer, torch.optim.Adam)
         with torch.no_grad():
@@ -313,6 +387,7 @@ def test_epoch_orchestration(cfg):
                 "n_samples": len(loader.dataset)}
 
     def fake_evaluate(model, loader, criterion, device, dataset_config, *, pin_memory=False):
+        assert not training.RUN_CONFIG_DIR.exists(), "No backups before final evaluation finishes"
         epoch = int(model.signal_adapter.weight.item())
         evaluated_epochs.append(epoch)
         rmse = {1: 2., 2: 4., 3: 3.}[epoch]
@@ -325,7 +400,33 @@ def test_epoch_orchestration(cfg):
         csv_epochs.append([row["epoch"] for row in history])
         original_csv_writer(path, history)
 
-    with TemporaryDirectory() as directory:
+    with TemporaryDirectory() as directory, \
+            patch.object(training, "RUN_CONFIG_DIR", Path(directory) / "unused-backups"):
+        run_count = 0
+        original_backup = training.backup_run_csvs
+
+        def checked_backup(metrics_path, snr_path, *, run_config_dir):
+            assert evaluated_epochs[-1] == 1, "Back up only after restoring and evaluating best"
+            assert Path(metrics_path).is_file() and Path(snr_path).is_file()
+            original_backup(metrics_path, snr_path, run_config_dir=run_config_dir)
+            for source in (metrics_path, snr_path):
+                assert (run_config_dir / source.name).read_bytes() == source.read_bytes()
+
+        def run(local_cfg, resume=None):
+            nonlocal run_count
+            run_count += 1
+            backup_dir = Path(directory) / f"backups-{run_count}"
+            with patch.object(training, "RUN_CONFIG_DIR", backup_dir), \
+                    patch.object(training, "backup_run_csvs", side_effect=checked_backup) as copy:
+                try:
+                    result = training.run_training(local_cfg, resume=resume)
+                except (RuntimeError, FileExistsError):
+                    copy.assert_not_called()
+                    assert not backup_dir.exists()
+                    raise
+                assert copy.call_count == 1
+                return result
+
         local_cfg = deepcopy(cfg)
         local_cfg["training"].update(epochs=2, batch_size=2, output_dir=str(Path(directory) / "first"))
         local_cfg["loader"].update(num_workers=0, persistent_workers=False)
@@ -343,7 +444,7 @@ def test_epoch_orchestration(cfg):
             stack.enter_context(patch.object(torch.cuda, "get_device_name", return_value="CPU orchestration fixture"))
             stack.enter_context(patch.object(torch.cuda, "get_rng_state", return_value=None))
             stack.enter_context(redirect_stdout(io.StringIO()))
-            result = training.run_training(local_cfg)
+            result = run(local_cfg)
             assert result["rmse_deg"] == 2.
             assert trained_epochs == [1, 2] and evaluated_epochs == [1, 2, 1]
             assert csv_epochs == [[1], [1, 2]], "History CSV must be updated each epoch"
@@ -355,12 +456,12 @@ def test_epoch_orchestration(cfg):
             assert first_last["best_eval_rmse_deg"] == 2.
             assert first_last["best_checkpoint"]["epoch"] == 1
             assert "best_checkpoint" not in first_last["best_checkpoint"], "Best snapshots must not recurse"
-            assert_raises(FileExistsError, lambda: training.run_training(local_cfg))
+            assert_raises(FileExistsError, lambda: run(local_cfg))
 
             # Move only last.pt to another output directory and extend by one epoch.
             moved = deepcopy(local_cfg)
             moved["training"].update(epochs=3, output_dir=str(Path(directory) / "moved"))
-            result = training.run_training(moved, resume=first_last_path)
+            result = run(moved, resume=first_last_path)
             assert result["rmse_deg"] == 2.
             assert trained_epochs == [1, 2, 3] and evaluated_epochs == [1, 2, 1, 3, 1]
             moved_dir = Path(moved["training"]["output_dir"])
@@ -377,7 +478,7 @@ def test_epoch_orchestration(cfg):
             # Completed runs still reconstruct outputs and evaluate the historical best.
             completed = deepcopy(moved)
             completed["training"]["output_dir"] = str(Path(directory) / "completed")
-            training.run_training(completed, resume=moved_last_path)
+            run(completed, resume=moved_last_path)
             assert trained_epochs == [1, 2, 3] and evaluated_epochs[-1] == 1
             with (Path(completed["training"]["output_dir"]) / "eval_by_snr.csv").open(
                     newline="", encoding="utf-8") as file:
@@ -388,15 +489,35 @@ def test_epoch_orchestration(cfg):
             # Resume best.pt itself and ensure its history cannot alias the growing history.
             from_best = deepcopy(local_cfg)
             from_best["training"]["output_dir"] = str(Path(directory) / "from-best")
-            result = training.run_training(from_best, resume=first_dir / "checkpoints" / "best.pt")
+            result = run(from_best, resume=first_dir / "checkpoints" / "best.pt")
             assert result["rmse_deg"] == 2.
             resumed_last_path = Path(from_best["training"]["output_dir"]) / "checkpoints" / "last.pt"
             resumed_last = torch.load(resumed_last_path, map_location="cpu", weights_only=True)
             assert resumed_last["epoch"] == 2
             assert resumed_last["best_checkpoint"]["history"] == first_best["history"]
             from_best["training"].update(epochs=3, output_dir=str(Path(directory) / "from-best-again"))
-            result = training.run_training(from_best, resume=resumed_last_path)
+            result = run(from_best, resume=resumed_last_path)
             assert result["rmse_deg"] == 2.
+
+            interrupted = deepcopy(local_cfg)
+            interrupted["training"]["output_dir"] = str(Path(directory) / "interrupted")
+
+            def interrupt_second_epoch(*args, **kwargs):
+                if int(args[0].signal_adapter.weight.item()) == 1:
+                    raise RuntimeError("interrupted epoch")
+                return fake_train(*args, **kwargs)
+
+            with patch.object(training, "train_one_epoch", side_effect=interrupt_second_epoch):
+                assert_raises(RuntimeError, lambda: run(interrupted), "interrupted epoch")
+            interrupted_checkpoint = Path(interrupted["training"]["output_dir"]) / "checkpoints" / "last.pt"
+            assert interrupted_checkpoint.is_file()
+            assert run(interrupted, resume=interrupted_checkpoint)["rmse_deg"] == 2.
+
+            # A completed checkpoint skips epochs; these failures occur in final evaluation/writing.
+            with patch.object(training, "evaluate", side_effect=RuntimeError("final eval failed")):
+                assert_raises(RuntimeError, lambda: run(completed, resume=moved_last_path), "final eval failed")
+            with patch.object(training, "write_snr_metrics_csv", side_effect=RuntimeError("CSV failed")):
+                assert_raises(RuntimeError, lambda: run(completed, resume=moved_last_path), "CSV failed")
     print("PASS: CUDA requirement, per-epoch last/best/CSV, best selected by RMSE, next-epoch resume, "
           "moved-output best preservation and completed-run final evaluation")
 
@@ -565,6 +686,7 @@ def main():
     test_degree_mapping(cfg["dataset"])
     test_metrics_and_modes(cfg["dataset"])
     test_csv()
+    test_run_csv_backups(cfg)
     test_epoch_orchestration(cfg)
     real_dataset = None
     if Path(cfg["dataset"]["root"]).expanduser().is_dir():
