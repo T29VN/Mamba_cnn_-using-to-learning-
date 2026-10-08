@@ -8,7 +8,7 @@ MoDANet-dataset/
 # Dữ liệu sinh ra (numpy, csv)
 # ============================================
 *.npy
-*.csv
+#*.csv
 !store/run_config/
 !store/run_config/*.csv
 
